@@ -50,11 +50,7 @@ const CommentForm = React.createClass({
 });
 
 const CommentBox = React.createClass({
-    getInitialState() {
-        return {data: []};
-    },
-
-    componentDidMount() {
+    loadCommentsFromServer() {
         $.ajax({
             url: this.props.url,
             dataType: 'json',
@@ -66,6 +62,15 @@ const CommentBox = React.createClass({
                 console.error(this.props.url, status, err.toString());
             }.bind(this)
         })
+    },
+
+    getInitialState() {
+        return {data: []};
+    },
+
+    componentDidMount() {
+        this.loadCommentsFromServer();
+        setInterval(this.loadCommentsFromServer, this.props.pollInterval)
     },
 
     render() {
@@ -80,6 +85,9 @@ const CommentBox = React.createClass({
 });
 
 ReactDOM.render(
-    <CommentBox url="http://www.mocky.io/v2/57dd18440f00008114a2d515"/>,
+    <CommentBox
+        url="http://www.mocky.io/v2/57dd18440f00008114a2d515"
+        pollInterval={2000}
+    />,
     document.getElementById('content')
 );
