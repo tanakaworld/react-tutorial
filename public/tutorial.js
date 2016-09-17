@@ -40,11 +40,44 @@ const CommentList = React.createClass({
     }
 });
 const CommentForm = React.createClass({
+    getInitialState() {
+        return {author: '', text: ''}
+    },
+
+    handleAuthorChange(e) {
+        this.setState({author: e.target.value});
+    },
+
+    handleTextChange(e) {
+        this.setState({text: e.target.value});
+    },
+
+    handleSubmit(e) {
+        e.preventDefault();
+        const author = this.state.author.trim();
+        const text = this.state.text.trim();
+        if (!text || !author) {
+            return;
+        }
+        this.props.onCommentSubmit({author: author, text: text});
+        this.setState({author: '', text: ''});
+    },
+
     render() {
         return (
-            <div className="commentForm">
-                CommentForm
-            </div>
+            <form className="commentForm" onSubmit={this.handleSubmit}>
+                <input type="text"
+                       placeholder="Yout name"
+                       value={this.state.author}
+                       onChange={this.handleAuthorChange}
+                />
+                <input type="text"
+                       placeholder="Say something"
+                       value={this.state.text}
+                       onChange={this.handleTextChange}
+                />
+                <input type="submit" value="Post"/>
+            </form>
         )
     }
 });
@@ -64,13 +97,28 @@ const CommentBox = React.createClass({
         })
     },
 
+    handleCommentSubmit(comment)  {
+        $.ajax({
+            url: this.props.url,
+            dataType: 'json',
+            type: 'POST',
+            data: comment,
+            success: function (data) {
+                this.setState({data: data});
+            }.bind(this),
+            error: function (xhr, status, err) {
+                console.error(this.props.url, status, err.toString());
+            }.bind(this)
+        });
+    },
+
     getInitialState() {
         return {data: []};
     },
 
     componentDidMount() {
         this.loadCommentsFromServer();
-        setInterval(this.loadCommentsFromServer, this.props.pollInterval)
+        //setInterval(this.loadCommentsFromServer, this.props.pollInterval)
     },
 
     render() {
@@ -78,7 +126,7 @@ const CommentBox = React.createClass({
             <div className="commentBox">
                 <h1>Comments</h1>
                 <CommentList data={this.state.data}/>
-                <CommentForm />
+                <CommentForm onCommentSubmit={this.handleCommentSubmit}/>
             </div>
         );
     }
