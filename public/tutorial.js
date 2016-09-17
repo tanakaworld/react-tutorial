@@ -1,3 +1,9 @@
+const data = [
+    {id: 1, author: "Tanaka World 1", text: "あいうえお"},
+    {id: 2, author: "Tanaka World 2", text: "かきくけこ"}
+];
+
+
 const Comment = React.createClass({
     rawMarkup() {
         var md = new Remarkable();
@@ -19,12 +25,18 @@ const Comment = React.createClass({
 
 const CommentList = React.createClass({
     render() {
+        const commentNodes = this.props.data.map((comment) => {
+            return (
+                <Comment author={comment.author} key={comment.id}>
+                    {comment.text}
+                </Comment>
+            );
+        });
         return (
             <div className="commentList">
-                <Comment author="Tanaka World 1">This is one comment</Comment>
-                <Comment author="TNK WD">This is "another" comment</Comment>
+                {commentNodes}
             </div>
-        );
+        )
     }
 });
 const CommentForm = React.createClass({
@@ -42,7 +54,7 @@ const CommentBox = React.createClass({
         return (
             <div className="commentBox">
                 <h1>Comments</h1>
-                <CommentList />
+                <CommentList data={this.props.data}/>
                 <CommentForm />
             </div>
         );
@@ -50,6 +62,6 @@ const CommentBox = React.createClass({
 });
 
 ReactDOM.render(
-    <CommentBox />,
+    <CommentBox data={data}/>,
     document.getElementById('content')
 );
