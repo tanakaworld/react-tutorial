@@ -50,11 +50,29 @@ const CommentForm = React.createClass({
 });
 
 const CommentBox = React.createClass({
+    getInitialState() {
+        return {data: []};
+    },
+
+    componentDidMount() {
+        $.ajax({
+            url: this.props.url,
+            dataType: 'json',
+            cache: false,
+            success: function (data) {
+                this.setState({data: data})
+            }.bind(this),
+            error: function (xhr, status, err) {
+                console.error(this.props.url, status, err.toString());
+            }.bind(this)
+        })
+    },
+
     render() {
         return (
             <div className="commentBox">
                 <h1>Comments</h1>
-                <CommentList data={this.props.data}/>
+                <CommentList data={this.state.data}/>
                 <CommentForm />
             </div>
         );
@@ -62,6 +80,6 @@ const CommentBox = React.createClass({
 });
 
 ReactDOM.render(
-    <CommentBox data={data}/>,
+    <CommentBox url="http://www.mocky.io/v2/57dd18440f00008114a2d515"/>,
     document.getElementById('content')
 );
